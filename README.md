@@ -12,7 +12,7 @@ A demo showing Mistral models working together:
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-export MISTRAL_API_KEY=...
+cp .env.example .env   # then paste your API key into .env
 ```
 
 ## Run

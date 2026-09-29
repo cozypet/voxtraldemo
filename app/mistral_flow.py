@@ -1,6 +1,11 @@
 import base64
 import io
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 from mistralai.client import Mistral
 from pypdf import PdfReader

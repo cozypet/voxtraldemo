@@ -59,7 +59,7 @@ async function run() {
     clearInterval(t);
     status.textContent = 'Done.';
     document.getElementById('out').style.display = '';
-    document.getElementById('player').src = 'data:audio/wav;base64,' + data.audio;
+    document.getElementById('player').src = 'data:audio/mpeg;base64,' + data.audio;
     document.getElementById('german').textContent = data.german;
     document.getElementById('french').textContent = data.french;
   } catch (e) {

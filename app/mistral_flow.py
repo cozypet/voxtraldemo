@@ -13,8 +13,8 @@ from pypdf import PdfReader
 MAX_TTS_CHARS = 950
 OCR_MODEL = "mistral-ocr-latest"
 TRANSLATE_MODEL = "mistral-small-latest"
-TTS_MODEL = "voxtral-tts"
-TTS_VOICE = "simone-english"
+TTS_MODEL = "voxtral-mini-tts-latest"
+TTS_VOICE = "en_paul_confident"
 
 
 def _client() -> Mistral:
@@ -81,12 +81,12 @@ def synthesize_speech(text: str) -> bytes:
     client = _client()
     audio = b""
     for chunk in _chunk(text):
-        resp = client.audio.speech.create(
+        resp = client.audio.speech.complete(
             model=TTS_MODEL,
-            voice=TTS_VOICE,
+            voice_id=TTS_VOICE,
             input=chunk,
         )
-        audio += resp.audio
+        audio += base64.b64decode(resp.audio_data)
     return audio
 
 

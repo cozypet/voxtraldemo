@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Voxtral Demo — French doc → German speech</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; background: #faf9f7; color: #1a1a1a; }
+  h1 { font-size: 1.5rem; }
+  .steps { color: #666; margin-bottom: 1.5rem; }
+  .card { background: white; border: 1px solid #e5e2dc; border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; }
+  input[type=file] { margin-right: .5rem; }
+  button { background: #ff8205; color: white; border: 0; border-radius: 6px; padding: .5rem 1.2rem; cursor: pointer; font-size: 1rem; }
+  button:disabled { background: #ccc; cursor: wait; }
+  audio { width: 100%; margin-top: .5rem; }
+  pre { white-space: pre-wrap; font-family: inherit; background: #f4f2ee; padding: .75rem; border-radius: 8px; }
+  h3 { margin: 0 0 .5rem; font-size: .85rem; text-transform: uppercase; letter-spacing: .05em; color: #888; }
+  .error { color: #b00020; }
+</style>
+</head>
+<body>
+<h1>Voxtral Demo</h1>
+<p class="steps">Upload a French document — OCR → translate to German → read aloud with Voxtral TTS.</p>
+
+<div class="card">
+  <input type="file" id="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.md">
+  <button id="go" onclick="run()">Read it in German</button>
+  <p id="status"></p>
+</div>
+
+<div class="card" id="out" style="display:none">
+  <h3>German audio</h3>
+  <audio id="player" controls></audio>
+  <h3>German translation</h3>
+  <pre id="german"></pre>
+  <details>
+    <summary>Original French text</summary>
+    <pre id="french"></pre>
+  </details>
+</div>
+
+<script>
+async function run() {
+  const file = document.getElementById('file').files[0];
+  const btn = document.getElementById('go');
+  const status = document.getElementById('status');
+  if (!file) { status.textContent = 'Please choose a file first.'; status.className = 'error'; return; }
+  btn.disabled = true;
+  status.className = '';
+  const steps = ['Running OCR…', 'Translating to German…', 'Generating speech with Voxtral…'];
+  let i = 0;
+  status.textContent = steps[0];
+  const t = setInterval(() => { if (i < steps.length - 1) status.textContent = steps[++i]; }, 4000);
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch('/process', { method: 'POST', body: fd });
+    if (!res.ok) throw new Error((await res.json()).detail || 'Request failed');
+    const data = await res.json();
+    clearInterval(t);
+    status.textContent = 'Done.';
+    document.getElementById('out').style.display = '';
+    document.getElementById('player').src = 'data:audio/wav;base64,' + data.audio;
+    document.getElementById('german').textContent = data.german;
+    document.getElementById('french').textContent = data.french;
+  } catch (e) {
+    clearInterval(t);
+    status.textContent = 'Error: ' + e.message;
+    status.className = 'error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>

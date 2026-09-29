@@ -1,0 +1,6 @@
+mistralai>=2.10
+pypdf
+fastapi
+uvicorn
+jinja2
+python-multipart
